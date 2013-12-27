@@ -30,10 +30,10 @@ func (r *Return) Error(index int, d error) error {
 		return nil
 	}
 	switch typed := value.(type) {
-		case string:
-			return errors.New(typed)
-		default:
-			return value.(error)
+	case string:
+		return errors.New(typed)
+	default:
+		return value.(error)
 	}
 }
 
@@ -86,14 +86,14 @@ func (r *Return) Float32(index int, d float32) float32 {
 }
 
 func (r *Return) Type(index int, d interface{}) interface{} {
-	if len(r.Values) > index  && r.Values[index] != nil {
+	if len(r.Values) > index && r.Values[index] != nil {
 		return r.Values[index]
 	}
 	return d
 }
 
 func (r *Return) At(index int, d interface{}) interface{} {
-	if len(r.Values) > index  {
+	if len(r.Values) > index {
 		return r.Values[index]
 	}
 	return d

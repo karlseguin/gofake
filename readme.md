@@ -1,7 +1,7 @@
 # GoFake
 A stub helper for writing effective golang tests.
 
-GoFake currently only supports stubs, but mocks should be doable. GoFake isn't magical. It doesn't eliminate as much boilerplate code as other libraries. And, critically, it still requires that you program against interfaces (which is just the static-typed way of doing thing, deal with it)
+GoFake isn't magical. It doesn't eliminate as much boilerplate code as other libraries. And, critically, it still requires that you program against interfaces (which is just the static-typed way of doing thing, deal with it)
 
 ## Usage
 The first thing to do is to look at the interface we want to fake:
@@ -43,6 +43,23 @@ Only a few methods are available on a stub:
 
 * `Returning(values ...interface{})` - the values to return
 * `Once()` - only stub this for 1 call (defaults to unlimited)
+* `Times(n int)` - only stub this for `n` calls
+
+## Mocks
+Mocks are created with the `Expect` method, rather than the `Stub` method. They expose the same methods as stubs, with the addition of `With` and `Assert`:
+
+    func TestPassesTheIdToTheRepoToGetTheEmail(t *testing.T) {
+      repo.Expect(repo.GetEmail).With("leto@caladan.gov").Returning("")
+      Show("paul", repo)
+      repo.Assert(t)
+    }
+
+It's ok to mix stubs and mocks as `Assert` on a stub always passes. Also, you can use `gofake.Any` as a paremeter to `With` in order to match any value.
+
+* `With(inptus ...interface{})` - the input values we expect to be called
+* `Returning(values ...interface{})` - the values to return
+* `Once()` - only stub this for 1 call (defaults to unlimited)
+* `Never()` - this method should never be called
 * `Times(n int)` - only stub this for `n` calls
 
 ## Returns

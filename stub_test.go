@@ -2,11 +2,11 @@ package gofake
 
 import (
 	"errors"
-	"testing"
 	"github.com/karlseguin/gspec"
+	"testing"
 )
 
-func TestReturnsTheStubbedValueMultipleTimes(t *testing.T) {
+func TestStubReturnsTheValueMultipleTimes(t *testing.T) {
 	spec := gspec.New(t)
 	fake := newFake()
 	fake.Stub(fake.GetEmail).Returning("invalid")
@@ -14,14 +14,14 @@ func TestReturnsTheStubbedValueMultipleTimes(t *testing.T) {
 	spec.Expect(fake.GetEmail("paul")).ToEqual("invalid")
 }
 
-func TestReturnsTheDefaultValueMultipleTimes(t *testing.T) {
+func TestStubReturnsTheDefaultValueMultipleTimes(t *testing.T) {
 	spec := gspec.New(t)
 	fake := newFake()
 	spec.Expect(fake.GetEmail("leto")).ToEqual("leto@caladan.gov")
 	spec.Expect(fake.GetEmail("paul")).ToEqual("leto@caladan.gov")
 }
 
-func TestLimitsTheStubToASingleInvokation(t *testing.T) {
+func TestStubIsLimitedToASingleInvocation(t *testing.T) {
 	spec := gspec.New(t)
 	fake := newFake()
 	fake.Stub(fake.GetEmail).Returning("first").Once()
@@ -29,7 +29,7 @@ func TestLimitsTheStubToASingleInvokation(t *testing.T) {
 	spec.Expect(fake.GetEmail("paul")).ToEqual("leto@caladan.gov")
 }
 
-func TestLimitsTheStubToATheSpecifiedNumberOfInvokation(t *testing.T) {
+func TestStubIsLimitedToTheSpecifiedNumberOfInvocations(t *testing.T) {
 	spec := gspec.New(t)
 	fake := newFake()
 	fake.Stub(fake.GetEmail).Returning("first").Times(2)
@@ -39,12 +39,12 @@ func TestLimitsTheStubToATheSpecifiedNumberOfInvokation(t *testing.T) {
 }
 
 //silly, but let's make sure it doesn't panic or anything
-func TestStubbingMethodWithNoReturnIsANoop(t *testing.T) {
+func TestStubMethodWithNoReturnIsANoop(t *testing.T) {
 	fake := newFake()
 	fake.Exec()
 }
 
-func TestStubsAllReturnValues(t *testing.T) {
+func TestStubReturnsAllSpecifiedValues(t *testing.T) {
 	spec := gspec.New(t)
 	fake := newFake()
 	fake.Stub(fake.Count).Returning(32, nil)
@@ -53,7 +53,7 @@ func TestStubsAllReturnValues(t *testing.T) {
 	spec.Expect(err).ToBeNil()
 }
 
-func TestStubsASingleReturnValueAndDefaultsTheRest(t *testing.T) {
+func TestStubReturnsASingleSpecifiedValue(t *testing.T) {
 	spec := gspec.New(t)
 	fake := newFake()
 	fake.Stub(fake.Count).Returning(22)
@@ -62,7 +62,7 @@ func TestStubsASingleReturnValueAndDefaultsTheRest(t *testing.T) {
 	spec.Expect(err.Error()).ToEqual("invalid")
 }
 
-func TestDefaultsNilValues(t *testing.T) {
+func TestStubReturnsADefaultOnNil(t *testing.T) {
 	spec := gspec.New(t)
 	fake := newFake()
 	fake.Stub(fake.Count).Returning(nil, "some error")
@@ -72,9 +72,11 @@ func TestDefaultsNilValues(t *testing.T) {
 }
 
 type Repository interface {
+	Remove(id int, soft bool) bool
 	GetEmail(id string) string
 	Exec()
 	Count() (int, error)
+	LogError(err error)
 }
 
 type FakeRepository struct {
@@ -97,4 +99,13 @@ func (f *FakeRepository) Exec() {
 func (f *FakeRepository) Count() (int, error) {
 	r := f.Called()
 	return r.Int(0, 10), r.Error(1, errors.New("invalid"))
+}
+
+func (f *FakeRepository) Remove(id int, soft bool) bool {
+	r := f.Called(id, soft)
+	return r.Bool(0, true)
+}
+
+func (f *FakeRepository) LogError(err error) {
+	f.Called(err)
 }
