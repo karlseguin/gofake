@@ -2,8 +2,9 @@ package gofake
 
 import (
 	"errors"
-	"github.com/karlseguin/gspec"
 	"testing"
+
+	"github.com/karlseguin/gspec"
 )
 
 func TestStubReturnsTheValueMultipleTimes(t *testing.T) {

@@ -39,6 +39,7 @@ func (f Fake) Stub(function interface{}) *Stub {
 
 func (f Fake) Expect(function interface{}) *Mock {
 	mock := &Mock{}
+
 	f.register(function, mock)
 	return mock.Once()
 }
@@ -79,6 +80,7 @@ func getFunctionName(pc uintptr) string {
 	name := runtime.FuncForPC(pc).Name()
 	dot := strings.LastIndex(name, ".")
 	function := name[dot+1:]
+	function = strings.Split(function, "-")[0]
 	if index := strings.LastIndex(function, "·"); index != -1 {
 		return function[:index]
 	}
